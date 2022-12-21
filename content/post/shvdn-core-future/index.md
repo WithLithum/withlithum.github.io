@@ -15,7 +15,7 @@ tags:
 > NOTE
 >
 > This article is not affliated with Script Hook V .NET project, nor the RAGE Plugin Hook project.
-> Pronouns avoided to avoid controversy.
+> Pronouns avoided to avoid controversy. All credits for quotes, projects and resources mentioned below goes to their respective authors and contributors.
 
 Many of you may already heard of the [Community Script Hook V .NET](https://github.com/crosire/scripthookvdotnet) project. This is basically a continuation of the original [Script Hook IV .NET](https://github.com/HazardX/gta4_scripthookdotnet) project (note that the IV is to differ from V). Then, there is the [RAGE Plugin Hook](https://discord.gg/ragepluginhook)[^1], mainly for LSPDFR project.
 
