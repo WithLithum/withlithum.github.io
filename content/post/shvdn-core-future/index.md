@@ -1,5 +1,5 @@
 ---
-title: ".NET Hooks for GTA V: .NET 5+, Brief History (assumed) and future"
+title: "Dotnet Hooks for GTA V: New DotNet, Brief History (assumed) and future"
 description: A page about .NET 5+ possiblity for .NET loaders, hooks, etc., and all other techinical difficulities around these projects
 date: 2022-12-21T12:01:01+08:00
 image: cover.png
