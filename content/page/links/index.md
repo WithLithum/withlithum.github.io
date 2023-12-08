@@ -9,7 +9,7 @@ links:
     description: GitHub is the world's largest software development platform.
     website: https://github.com
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-  - title: Minecraft Wiki (Provisional Link)
+  - title: Minecraft Wiki
     description: The ultimate resource to Minecraft.
     website: https://minecraft.wiki
 menu:

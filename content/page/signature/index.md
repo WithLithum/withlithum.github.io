@@ -7,7 +7,7 @@ menu:
             icon: tag
 ---
 
-This is my current signature profile.
+> **Please refrain from using the following signature. It is no longer in use.**
 
 ```
 -----BEGIN PGP SIGNED MESSAGE-----
