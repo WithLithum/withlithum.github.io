@@ -19,7 +19,7 @@ If you saw me on any platforms other than ones stated here then that is not me.
 - [Codeberg](https://codeberg.org/WithLithum)
 - [Gitea](https://gitea.org/WithLithum)
 - [Minecraft](https://namemc.com/profile/WithLithum.1)
-- Discord
+- [Discord](https://discord.gg/UFfWb9Rj)
 
 ### Inactive / On Hiatus
 
@@ -46,7 +46,7 @@ Some parts of the open source project are used for building this blog. These inc
 
 ### Tabler icons
 
-Tabler is available under MIT License
+Tabler icons are used in this blog.
 
 Copyright 2018-2023 Tabler
 
@@ -55,3 +55,15 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### FontAwesome icons
+
+FontAwesome Free icons are used in this blog. These icons can be found at [here](https://fontawesome.com/).
+
+```plain
+Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)
+
+The Font Awesome Free download is licensed under a Creative Commons
+Attribution 4.0 International License and applies to all icons packaged
+as SVG and JS file types.
+```
