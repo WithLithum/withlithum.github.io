@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>gtav on WithLithum</title><link>https://withlithum.github.io/tags/gtav/</link><description>Recent content in gtav on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 11 Dec 2023 08:23:14 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/tags/gtav/index.xml" rel="self" type="application/rss+xml"/><item><title>Ticks and Loops in GTA V Scripting</title><link>https://withlithum.github.io/p/ticks-and-loops-in-gta-v-scripting/</link><pubDate>Mon, 11 Dec 2023 08:23:14 +0800</pubDate><guid>https://withlithum.github.io/p/ticks-and-loops-in-gta-v-scripting/</guid><description>&lt;p>Most GTA V scripting newbies, when trying to do something repeatedly, would try to do this: (using C# as an example)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// do processing logic.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>However, when they go and run this, they&amp;rsquo;ll see that the game either freezes or crashes, with no clue of what went wrong.&lt;/p>
+&lt;h2 id="so-what-really-went-wrong">So what really went wrong?&lt;/h2>
+&lt;p>In order to answer this question, I will have to explain how the GTA V scripts run.&lt;/p>
+&lt;p>All calls to the game and everything that deals with the game world needs to be synchronised. This means only one party (that is, either the game itself, a &lt;code>ysc&lt;/code> script which is a type of script embedded in the game, or one of the custom scripts/game fibre provided by SHV, SHVDN, RPH, etc.) may deal with game functions at the same time, and script hooks will have to ensure that too.&lt;/p>
+&lt;p>The game achieves this using ticks. Each tick, the game runs once, and all other scripts run once. When they return or finish running one loop, they will have to explicitly tell the game by &lt;em>yielding&lt;/em> themselves so that the game engine can pass on executing the next stuff.&lt;/p>
+&lt;p>If one fails to yield in loop, the loop will run in a single tick, and the game freezes until the loop returns (and if the loop is a &lt;code>while true&lt;/code> with no &lt;code>break&lt;/code> that means never). Thankfully, ScriptHookV .NET and RAGE Plugin Hook both have safety measures in place to terminate scripts/plugins that fails to yield to other scripts for a set amount of time (this is usually 10 seconds but LSPD:FR players tend set it to one minute due to how long LSPD:FR takes to load).&lt;/p>
+&lt;p>&lt;a class="link" href="https://docs.ragepluginhook.net/html/4c04eafe-2474-4f41-9087-ac47bb16d491.htm" target="_blank" rel="noopener"
+>This RPH documentation article&lt;/a> explains this in detail.&lt;/p>
+&lt;h2 id="how-do-i-fix-this-problem">How do I fix this problem?&lt;/h2>
+&lt;p>In order to allow the game and others to run, you will have to yield in your loops. How you do the actual yielding depends on the framework you are using.&lt;/p>
+&lt;h3 id="scripthookv">ScriptHookV&lt;/h3>
+&lt;p>If you use ScriptHookV, you should do so whenever you need to do loops. Do this when looping:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">WAIT&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// ... your code
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>WAIT(0)&lt;/code> here means that the script while pause and allow others to run, and resume at the next tick.&lt;/p>
+&lt;h3 id="scripthookv-net-and-fivem-net">ScriptHookV .NET, and FiveM .NET&lt;/h3>
+&lt;p>You should try to avoid doing your own loops because the &lt;code>Script&lt;/code> base class already providing a ticking function.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="n">MyScript&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Tick&lt;/span> &lt;span class="p">+=&lt;/span> &lt;span class="n">OnTick&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">private&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">OnTick&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">object&lt;/span> &lt;span class="n">sender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">EventArgs&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Your code.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ScriptHookV .NET will automatically do the yielding for you after your &lt;code>OnTick&lt;/code> handler returns. But beware, if the &lt;code>OnTick&lt;/code> function does not return, it will not yield too.&lt;/p>
+&lt;p>You can manually yield by calling &lt;code>Script.Yield()&lt;/code> if necessary.&lt;/p>
+&lt;h3 id="rage-plugin-hook">RAGE Plugin Hook&lt;/h3>
+&lt;p>Yielding in RPH is more or less the same as of in ScriptHookV.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">Main&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">GameFiber&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Yield&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Your code.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="others">Others&lt;/h3>
+&lt;p>Other script engines (FiveM Lua, Lua ScriptHook) should be similar to ScriptHookV or the ScriptHookV .NET, in terms of yielding.&lt;/p></description></item><item><title>Dotnet Hooks for GTA V: New DotNet, Brief History (assumed) and future</title><link>https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/</link><pubDate>Wed, 21 Dec 2022 12:01:01 +0800</pubDate><guid>https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/</guid><description>&lt;img src="https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/cover.png" alt="Featured image of post Dotnet Hooks for GTA V: New DotNet, Brief History (assumed) and future" />&lt;blockquote>
+&lt;p>NOTE&lt;/p>
+&lt;p>This article is not affliated with Script Hook V .NET project, nor the RAGE Plugin Hook project.
+Pronouns avoided to avoid controversy. All credits for quotes, projects and resources mentioned below goes to their respective authors and contributors.&lt;/p>
+&lt;/blockquote>
+&lt;p>Many of you may already heard of the &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet" target="_blank" rel="noopener"
+>Community Script Hook V .NET&lt;/a> project. This is basically a continuation of the original &lt;a class="link" href="https://github.com/HazardX/gta4_scripthookdotnet" target="_blank" rel="noopener"
+>Script Hook IV .NET&lt;/a> project (note that the IV is to differ from V). Then, there is the &lt;a class="link" href="https://discord.gg/ragepluginhook" target="_blank" rel="noopener"
+>RAGE Plugin Hook&lt;/a>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>, mainly for LSPDFR project.&lt;/p>
+&lt;p>However, some of really tech savvy users could have spotted an issue - &lt;strong>None of these supports new .NET 5+&lt;/strong>! Yes, GTA V projects above absolutely are aware of issue and these have not aware have already outdated and abondoned.&lt;/p>
+&lt;p>Below is a brief history related to .NET family and particular problems.&lt;/p>
+&lt;h2 id="the-net-framework">The .NET Framework&lt;/h2>
+&lt;p>Back then, when these projects started, .NET Framework is the choice. And at that time, .NET Core either have not came out or is too unmature to be used, and everyone have or had .NET Framework runtime on their computer, or they can easily install it. Most hooks take advantage of &lt;code>C++/CLI&lt;/code> language feature to integrate C++ hooks with .NET Framework or hook the game completely on its own.&lt;/p>
+&lt;p>But there is one catch! &lt;code>C++/CLI&lt;/code> was designed to merely &lt;strong>Call C/C++ functions from C# easier&lt;/strong>, and did not support &lt;strong>hosting C# code from C/C++&lt;/strong> which script hooks require. So, these projects have to use all sorts of hacky ways to get it up and running.&lt;/p>
+&lt;blockquote>
+&lt;p>Originally SHVDN did not handle this at all, it just called managed functions from the unmanaged SHV callback directly. This was fine as long as the stack space did not change between callbacks, which was the case most of the time. Unfortunately some actions like loading a save game cause SHV to reload SHVDN and it does so with a different fiber and therefore different stack space then before. The next call into managed code therefore generally crashed pretty quickly. My &amp;ldquo;solution&amp;rdquo; back then (bf12d5c, like 6 years ago, don&amp;rsquo;t remember the details anymore to be honest) was to ensure SHVDN always calls into managed code from the same fiber. This way on the first managed call the CLR sets itself up in the fiber&amp;rsquo;s stack space and consequent calls are always guaranteed to hit that same space. I did not dig into it much further back then since it seemed to get rid of the problem at hand. The core of SHVDN hasn&amp;rsquo;t really changed all that much since and nobody looked at it again, so the &amp;ldquo;fix&amp;rdquo; stuck.&lt;/p>
+&lt;p>&amp;ndash; crosire in &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet/issues/976" target="_blank" rel="noopener"
+>crosire/scripthookvdotnet#976&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="the-new-net">The new .NET&lt;/h2>
+&lt;p>However, the situtation more or less have changed as the .NET 5 became &lt;strong>The .NET&lt;/strong>, it supports Windows desktop (and not to mention GNU/Linux and Mac), &lt;a class="link" href="https://softwarehut.com/blog/tech/net-core-vs-net-framework-testing-performance" target="_blank" rel="noopener"
+>runs&lt;/a> &lt;a class="link" href="https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-5/" target="_blank" rel="noopener"
+>faster&lt;/a>, have new and faster APIs, supports new C# language versions and features and even more!&lt;/p>
+&lt;p>Anyway, after .NET 6 LTS release, I &lt;a class="link" href="https://www.lcpdfr.com/forums/topic/119555-why-script-hooks-and-mod-frameworks-for-gta-still-uses-net-framework/" target="_blank" rel="noopener"
+>asked on the LSPDFR Forum&lt;/a> on January about this particular issue, where one of the developers who works with LSPDFR and RPH team responded:&lt;/p>
+&lt;blockquote>
+&lt;p>There is no support for AppDomains in .NET as compared to framework, so isolating plugins is a very different beast. I suppose the way forward would be using IPC as isolation, but I don&amp;rsquo;t think anyone has looked into that yet for a GTA framework.&lt;/p>
+&lt;p>&amp;ndash; LMS, in &lt;a class="link" href="https://www.lcpdfr.com/forums/topic/119555-why-script-hooks-and-mod-frameworks-for-gta-still-uses-net-framework/?do=findComment&amp;amp;comment=706905" target="_blank" rel="noopener"
+>this reply&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>In this reply, LMS pointed out that a big part of reason why RPH does not update to .NET 5+ is that isolation and security boundaries for &lt;code>AppDomain&lt;/code> have been axed:&lt;/p>
+&lt;blockquote>
+&lt;p>On .NET Core, the AppDomain implementation is limited by design and does not provide isolation, unloading, or security boundaries. For .NET Core, there is exactly one AppDomain. Isolation and unloading are provided through AssemblyLoadContext. Security boundaries should be provided by process boundaries and appropriate remoting techniques.&lt;/p>
+&lt;p>&lt;a class="link" href="https://learn.microsoft.com/en-us/dotnet/api/system.appdomain?view=net-7.0#remarks" target="_blank" rel="noopener"
+>AppDomain on Microsoft Learn documentation&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>However, there are ways to isolate on .NET, as pointed out by LMS and in the docs, is to use interprocess communication and use process boundaries to isolate plugins and scripts.&lt;/p>
+&lt;h2 id="conclusion-and-forward">Conclusion, and Forward&lt;/h2>
+&lt;p>There are attempted &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet/pull/1118" target="_blank" rel="noopener"
+>SHVDN porting efforts&lt;/a>. If you want to work on it you can.GTA V Modding frameworks, at this stage, should stay on .NET Framework for more couple of years as when either .NET Framework axed or support dropped by Microsoft or GTA VI have came out (which still 2-3 years away at least). However I doubt new technology would be used if .NET Framework is still supported when GTA VI came out.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>This link goes to the RPH Discord. RAGE Plugin Hook original author is &amp;ldquo;away without official leave&amp;rdquo; for as least a year now and the latest available RPH on that website is still for game build 2372! you can try it &lt;a class="link" href="https://ragepluginhook.net" target="_blank" rel="noopener"
+>here&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item></channel></rss>

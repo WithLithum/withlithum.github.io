@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>evaluation on WithLithum</title><link>https://withlithum.github.io/tags/evaluation/</link><description>Recent content in evaluation on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 12 Aug 2023 09:44:23 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/tags/evaluation/index.xml" rel="self" type="application/rss+xml"/><item><title>The so-called SponsorLink and how to replace projects with it</title><link>https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/</link><pubDate>Sat, 12 Aug 2023 09:44:23 +0800</pubDate><guid>https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/</guid><description>&lt;img src="https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/cover.png" alt="Featured image of post The so-called SponsorLink and how to replace projects with it" />&lt;p>&lt;em>This article was edited since (at 11th of November, 2023) its initial release to reflect the current changes.&lt;/em>&lt;/p>
+&lt;p>Parts of this article is based on my personal assumptions and knowledge. Yet, this does not disqualify the initial purpose of this article. I solely will decide whether a problem is material to the cause of this article or is totally immaterial to the matter.&lt;/p>
+&lt;p>&lt;strong>Disclaimer: I am not responsible for any damages, loss or costs as induced by or otherwise related to or associated with anything in the article.&lt;/strong>&lt;/p>
+&lt;h2 id="questions-and-answers">Questions and Answers&lt;/h2>
+&lt;h3 id="what-is-sponsorlink-anyways">What is SponsorLink anyways?&lt;/h3>
+&lt;p>SponsorLink is a piece of &lt;em>formerly obfuscated&lt;/em>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>MSBuild middleware that runs in the building process that connects with a remote server with the hash of your email address (the consent requirement was not there until recently) in order to verify you have sponsored the project. If you have not sponsored the project, a build delay and a build warning will be added for the first time that project was built on the same IDE instance. (It was added for each build before it was changed to the current system persumably due to critics). The makers of SponsorLink claims that they do not collect any more information than that. Currently this software does not impact end users of a software, only the build process.&lt;/p>
+&lt;p>Moq have since removed it claiming it &amp;ldquo;breaks builds on some systems&amp;rdquo; rather than other valid concerns, persumably with intention to bring it back at a later time. (Further research found out that Synk had marked Moq as having unwanted behaviour.) The version number that was released to remove SponsorLink was &lt;code>4.20.69&lt;/code>, and I personally would (because of the number &lt;code>69&lt;/code>) understand it as a some sort of despise to those who are against the SponsorLink.&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/devlooped/SponsorLink/issues/33" target="_blank" rel="noopener"
+>Issues&lt;/a> were raised about the behaviour but they are just ignored by the original author. The original author does does have a discussion thread but his response to critics were nothing more than just pickling on some very minor immaterial details in order to (by attempting to try to convince other people that the critics are wrong) provide a somewhat justifiable cause for such malicious middleware.&lt;/p>
+&lt;h3 id="why-is-it-not-acceptable">Why is it not acceptable?&lt;/h3>
+&lt;p>The designed purpose of the SponsorLink is to &lt;em>take something that users already have and expect&lt;/em> (build project without delays and unsolicited information) &lt;em>make it exclusive to those who have paid for&lt;/em>. SponsorLink is mainly used in projects that are licensed under a permissive license, and kzu persumably made this middleware based on the same intention that made Marak Squires made &lt;code>color.js&lt;/code> and &lt;code>faker.js&lt;/code> private (before community forked these). kzu may have wanted to make it similar to a product activation system but refrained from parts of the idea because of critics, and based on his response to critics in his own comment section, persumably in order to &amp;ldquo;fight back critics and prove I am totally correct&amp;rdquo;.&lt;/p>
+&lt;p>There are tons of other acceptable ways for open source sustainability, for example, the MkDocs Material sponsorware model is one of sponsorship models that I personally does not disagree with.&lt;/p>
+&lt;p>At least personally to me, begging for sponsorship in an annoying way while it is not strictly necessary means that people would simply get annoyed and stop using the project, not even to say if they are willing to pay for that or not. Everybody can define what is considered as &amp;ldquo;annoying&amp;rdquo; for themselves, yet generally a sponsorship link in the README section and in package description, as well as a one-time, non-modal &lt;em>and&lt;/em> non-interruptive notice after package install is generally considered OK.&lt;/p>
+&lt;h3 id="what-are-the-replacements-for-sponsorlink-ed-projects">What are the Replacements for SponsorLink-ed projects?&lt;/h3>
+&lt;p>You can also try to fork and wipe the project clean of SponsorLink, but beware of hidden caveats.&lt;/p>
+&lt;ul>
+&lt;li>Moq: Use &lt;code>NSubstitute&lt;/code>. See AlbertoMonteiro&amp;rsquo;s &lt;a class="link" href="https://github.com/AlbertoMonteiro/moq-to-nsubstitute" target="_blank" rel="noopener"
+>moq-to-nsubstitute&lt;/a>, and you may try Creastoff&amp;rsquo;s &lt;a class="link" href="https://github.com/Creastoff/Moqstitute" target="_blank" rel="noopener"
+>Moqstitute&lt;/a>. I have also &lt;a class="link" href="https://codeberg.org/NexusKrop/moq-build" target="_blank" rel="noopener"
+>created a fork of Moq&lt;/a> in order to strip all SponsorLink whenever and wherever it appears in the project. It should pass all tests and be 100% compatible with your current code.&lt;/li>
+&lt;li>NuGetizer: Remove the package and all packages as related to it. You do not need it to build your software.&lt;/li>
+&lt;/ul>
+&lt;h4 id="but-i-cannot-replace-these-packages">But I cannot replace these packages!&lt;/h4>
+&lt;p>Disconnnect all connections to Internet if you work on any project that is SponsorLink-ed, but I do not gurrantee this will work forever. Devlooped can simply add a feature to require Internet connection when building project.&lt;/p>
+&lt;p>You may also fork the project.&lt;/p>
+&lt;h2 id="issues-with-this-article">Issues with this Article&lt;/h2>
+&lt;p>Use the &lt;a class="link" href="https://github.com/WithLithum/withlithum.github.io/issues" target="_blank" rel="noopener"
+>Issues&lt;/a> section.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a class="link" href="https://discord.com/channels/143867839282020352/143867839282020352/1139212669816156300" target="_blank" rel="noopener"
+>Message in C# discord&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>privacy on WithLithum</title><link>https://withlithum.github.io/tags/privacy/</link><description>Recent content in privacy on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 05 Oct 2023 20:05:03 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/tags/privacy/index.xml" rel="self" type="application/rss+xml"/><item><title>How DotNet Process Shell Execute works on Linux</title><link>https://withlithum.github.io/p/how-dotnet-process-shell-execute-works-on-linux/</link><pubDate>Thu, 05 Oct 2023 20:05:03 +0800</pubDate><guid>https://withlithum.github.io/p/how-dotnet-process-shell-execute-works-on-linux/</guid><description>&lt;p>When you start a process with &lt;code>UseShellExecute&lt;/code> set to &lt;code>true&lt;/code> on Windows, .NET Runtime calls the Win32 &lt;a class="link" href="https://learn.microsoft.com/windows/win32/api/shellapi/nf-shellapi-shellexecuteexw" target="_blank" rel="noopener"
+>ShellExecute&lt;/a> API to have the OS do this for the application.&lt;/p>
+&lt;p>However, on GNU/Linux, the things work different. First, the .NET Runtime will check if your target file is executable. If so, the .NET Runtime will start it as an executable.&lt;/p>
+&lt;p>If the target file is &lt;em>not&lt;/em> an executable, then .NET will attempt to find the following external commands in &lt;code>PATH&lt;/code>: &lt;code>xdg-open&lt;/code>, &lt;code>gnome-open&lt;/code> and &lt;code>kfmclient&lt;/code>. The first available external command of the above will be executed to start the program with default association.&lt;/p>
+&lt;p>What if none of these are available? The .NET Runtime will throw a &lt;code>Win32Exception&lt;/code> stating that it failed to create the process because &amp;ldquo;No such file or directory&amp;rdquo;.&lt;/p></description></item><item><title>Disabling the Blockers of Ad Blocker Blocker</title><link>https://withlithum.github.io/p/disabling-the-blockers-of-ad-blocker-blocker/</link><pubDate>Sun, 24 Sep 2023 08:21:46 +0800</pubDate><guid>https://withlithum.github.io/p/disabling-the-blockers-of-ad-blocker-blocker/</guid><description>&lt;p>This article only applies for text-and-image blogging websites.&lt;/p>
+&lt;h2 id="how-do-they-work">How do they work&lt;/h2>
+&lt;p>Anti-adblock software runs in your browser to check if an AD Blocker is running or blocks&lt;/p>
+&lt;h2 id="how-to-block-anti-adblock-popups">How to block anti-adblock popups&lt;/h2>
+&lt;p>Do not turn off your AD-blocker and tracking prevention.&lt;/p>
+&lt;p>You will usually be able to prevent annoying anti-adblock popups by just doing one thing - &lt;em>disabling JavaScript on the website where it have appeared&lt;/em>. Unless the anti-adblock software makers exploited security issues in browsers to force you watch ads, this is the most effective way.&lt;/p>
+&lt;h2 id="how-to-disable-javascript">How to disable JavaScript?&lt;/h2>
+&lt;h3 id="edge">Edge&lt;/h3>
+&lt;ol>
+&lt;li>Open the website you want to disable JavaScript. Do not turn off your ad-blocker and tracking prevention here!&lt;/li>
+&lt;li>Click the Info or Lock icon in the left side of the address bar.&lt;/li>
+&lt;li>Click &lt;strong>Permissions for this site&lt;/strong>.&lt;/li>
+&lt;li>Scroll to &lt;strong>JavaScript&lt;/strong>, and click &lt;code>Allow (Default)&lt;/code> to the right. In the popup menu, select &lt;code>Block&lt;/code>.&lt;/li>
+&lt;li>Refresh the page.&lt;/li>
+&lt;/ol></description></item></channel></rss>

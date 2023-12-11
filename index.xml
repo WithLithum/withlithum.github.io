@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WithLithum</title><link>https://withlithum.github.io/</link><description>Recent content on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 11 Dec 2023 08:23:14 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Ticks and Loops in GTA V Scripting</title><link>https://withlithum.github.io/p/ticks-and-loops-in-gta-v-scripting/</link><pubDate>Mon, 11 Dec 2023 08:23:14 +0800</pubDate><guid>https://withlithum.github.io/p/ticks-and-loops-in-gta-v-scripting/</guid><description>&lt;p>Most GTA V scripting newbies, when trying to do something repeatedly, would try to do this: (using C# as an example)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// do processing logic.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>However, when they go and run this, they&amp;rsquo;ll see that the game either freezes or crashes, with no clue of what went wrong.&lt;/p>
+&lt;h2 id="so-what-really-went-wrong">So what really went wrong?&lt;/h2>
+&lt;p>In order to answer this question, I will have to explain how the GTA V scripts run.&lt;/p>
+&lt;p>All calls to the game and everything that deals with the game world needs to be synchronised. This means only one party (that is, either the game itself, a &lt;code>ysc&lt;/code> script which is a type of script embedded in the game, or one of the custom scripts/game fibre provided by SHV, SHVDN, RPH, etc.) may deal with game functions at the same time, and script hooks will have to ensure that too.&lt;/p>
+&lt;p>The game achieves this using ticks. Each tick, the game runs once, and all other scripts run once. When they return or finish running one loop, they will have to explicitly tell the game by &lt;em>yielding&lt;/em> themselves so that the game engine can pass on executing the next stuff.&lt;/p>
+&lt;p>If one fails to yield in loop, the loop will run in a single tick, and the game freezes until the loop returns (and if the loop is a &lt;code>while true&lt;/code> with no &lt;code>break&lt;/code> that means never). Thankfully, ScriptHookV .NET and RAGE Plugin Hook both have safety measures in place to terminate scripts/plugins that fails to yield to other scripts for a set amount of time (this is usually 10 seconds but LSPD:FR players tend set it to one minute due to how long LSPD:FR takes to load).&lt;/p>
+&lt;p>&lt;a class="link" href="https://docs.ragepluginhook.net/html/4c04eafe-2474-4f41-9087-ac47bb16d491.htm" target="_blank" rel="noopener"
+>This RPH documentation article&lt;/a> explains this in detail.&lt;/p>
+&lt;h2 id="how-do-i-fix-this-problem">How do I fix this problem?&lt;/h2>
+&lt;p>In order to allow the game and others to run, you will have to yield in your loops. How you do the actual yielding depends on the framework you are using.&lt;/p>
+&lt;h3 id="scripthookv">ScriptHookV&lt;/h3>
+&lt;p>If you use ScriptHookV, you should do so whenever you need to do loops. Do this when looping:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">WAIT&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// ... your code
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>WAIT(0)&lt;/code> here means that the script while pause and allow others to run, and resume at the next tick.&lt;/p>
+&lt;h3 id="scripthookv-net-and-fivem-net">ScriptHookV .NET, and FiveM .NET&lt;/h3>
+&lt;p>You should try to avoid doing your own loops because the &lt;code>Script&lt;/code> base class already providing a ticking function.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="n">MyScript&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Tick&lt;/span> &lt;span class="p">+=&lt;/span> &lt;span class="n">OnTick&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">private&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">OnTick&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">object&lt;/span> &lt;span class="n">sender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">EventArgs&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Your code.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ScriptHookV .NET will automatically do the yielding for you after your &lt;code>OnTick&lt;/code> handler returns. But beware, if the &lt;code>OnTick&lt;/code> function does not return, it will not yield too.&lt;/p>
+&lt;p>You can manually yield by calling &lt;code>Script.Yield()&lt;/code> if necessary.&lt;/p>
+&lt;h3 id="rage-plugin-hook">RAGE Plugin Hook&lt;/h3>
+&lt;p>Yielding in RPH is more or less the same as of in ScriptHookV.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="k">void&lt;/span> &lt;span class="n">Main&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">GameFiber&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Yield&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Your code.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="others">Others&lt;/h3>
+&lt;p>Other script engines (FiveM Lua, Lua ScriptHook) should be similar to ScriptHookV or the ScriptHookV .NET, in terms of yielding.&lt;/p></description></item><item><title>IceShell Anniversary Preview - Status Update 1</title><link>https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/</link><pubDate>Sat, 18 Nov 2023 08:55:23 +0800</pubDate><guid>https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/</guid><description>&lt;img src="https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/cover.png" alt="Featured image of post IceShell Anniversary Preview - Status Update 1" />&lt;p>This is the first status update for the IceShell Anniversary Preview (v0.3.0-alpha), which is set to release at 1st of Feburary 2024, exactly one year after its first commit. While I&amp;rsquo;ve been working on it for the last year, there weren&amp;rsquo;t some major improvements until the Anniversary Preview were planned.&lt;/p>
+&lt;p>The Anniversary Preview comes with the overhual of one of the systems that IceShell relies on - internal command registry.&lt;/p>
+&lt;h2 id="internal-command-registry">Internal Command Registry&lt;/h2>
+&lt;p>Let&amp;rsquo;s outline the main changes made to the Internal Command Registry system:&lt;/p>
+&lt;h3 id="rewrite-of-registry-system">Rewrite of registry system&lt;/h3>
+&lt;ul>
+&lt;li>The attribute-based command system have been decoupled from the command registry system. Instead, you need to maintain an instance of &lt;code>AnnotatedCommandRegistry&lt;/code>. This change does not bring breaking API changes to the attributes surface, though!&lt;/li>
+&lt;li>You can now register commands with a &lt;code>CommandRegistryEntry&lt;/code> which describes the command, and a &lt;code>CommandDelegate&lt;/code> which handles the execution of the command.&lt;/li>
+&lt;li>The command manager (&lt;code>ICommandManager&lt;/code>) and dispatcher (&lt;code>ICommandDispatcher&lt;/code>) interface have been merged to a single interface, the &lt;code>IRegistryCommandDispatcher&lt;/code> interface!&lt;/li>
+&lt;/ul>
+&lt;p>Here is an example of how to register an annotated command under the new system:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">registry&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">AnnotatedCommandRegistry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">registry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">typeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AnnotatedCommand&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Whereas the shell is the dispatcher that is passed via shell or module initialisation.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// and AnnotatedCommand is the command you are going to register.&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Here is a demonstration of how to register a command without an annotated shell command class:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">entry&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">CommandRegistryEntry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;command&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">val&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddValue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;value&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">shell&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">executor&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Arguments&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Values&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">val&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Execute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;command testvalue&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// testvalue&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="separation-of-command-aliases-and-ids">Separation of command aliases and IDs&lt;/h3>
+&lt;p>Once a time ago, there are no command aliases, and commands are directly referred to with their ID (called &lt;em>Name&lt;/em> at that time). Because of there are requirements for supporting commands with multiple names, an alias feature was added. The alias feature were implemented by registering the same command twice or more times under different names.&lt;/p>
+&lt;p>In the Anniversary Preview, the command IDs and aliases are now registered separately:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The same command registered with two or more IDs are treated with separate commands (or separate instances of the same command, if you thinks so).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Multiple aliases will correspond to unique IDs of commands, and the command dispatcher will use the ID to acquire the command definition from the registry.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Command IDs are case sensitive, while command aliases are case insensitive.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s suppose there is a command registered with ID &lt;code>test&lt;/code>. By default, the ID of the command is automatically registered as an alias of the command. Here is an example demonstrating the differences between aliases and IDs:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">routine&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Entry is a command with ID &amp;#34;test&amp;#34;.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Command IDs are case sensitive.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TEST&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tEsT&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Command aliases are case insensitive.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TEST&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TeSt&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="platform-modules">Platform Modules&lt;/h2>
+&lt;p>The Anniversary Preview update introduces two Platform Modules, the GNU/Linux platform module and Windows platform module.&lt;/p>
+&lt;p>The two modules are bundled in a standard release package and is automatically enabled on their respective platforms.&lt;/p>
+&lt;h2 id="command-changes">Command Changes&lt;/h2>
+&lt;h3 id="bundled-commands">Bundled Commands&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Added the new &lt;code>CHMOD&lt;/code> command in the GNU/Linux platform module&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>DATE&lt;/code> command for viewing date and time&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>FIND&lt;/code> command for searching for text strings in pipeline input&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Modified the syntax of the &lt;code>PROMPT&lt;/code> command and the prompt itself to support more placeholders&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>MEM&lt;/code> and &lt;code>VOL&lt;/code>commands in the Windows platform module&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>MORE&lt;/code> command to separate large chunk of text to pages with size determined by the size of the text buffer area of your terminal (emulator) window or screen.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="command-help">Command Help&lt;/h3>
+&lt;p>The description of commands and its parameters are no longer hardcoded. Instead, the description will be shown as a localised message with automatically generated message ID.&lt;/p>
+&lt;p>The message ID format is shown as below:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Type&lt;/th>
+&lt;th>Message ID Format&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Command description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Value parameter description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.value_&amp;lt;reference-name&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Option parameter description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.option_&amp;lt;identifier&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="command-actions">Command Actions&lt;/h3>
+&lt;p>The support for a single ampersand to connect two commands have been added. A single ampersand means to execute the command to the right regardless of the result of the command to the left.&lt;/p>
+&lt;h3 id="argument-parsing">Argument Parsing&lt;/h3>
+&lt;p>The support for multiple integral types have been added to annotated commands. Currently this includes &lt;code>Int32&lt;/code>, &lt;code>Int64&lt;/code>, &lt;code>Byte&lt;/code>, &lt;code>SByte&lt;/code>, &lt;code>Byte&lt;/code> and also &lt;code>Enum&lt;/code>.&lt;/p>
+&lt;p>I plan to add this argument conversion service to non-annotated commands.&lt;/p>
+&lt;h2 id="in-the-end">In the end&amp;hellip;&lt;/h2>
+&lt;p>I would like to thank &lt;a class="link" href="https://jetbrains.com/" target="_blank" rel="noopener"
+>JetBrains&lt;/a> for providing a free licence for their tools to help develop IceShell. Their tools have really helped me to make the later than much more major and important changes to the core systems. Without their tools, I would have costed much more time to may these important changes.&lt;/p>
+&lt;p>That&amp;rsquo;s all for now! I will continue to add new features and updates to the Anniversary Preview and improve it further in the meanwhile.&lt;/p></description></item><item><title>How DotNet Process Shell Execute works on Linux</title><link>https://withlithum.github.io/p/how-dotnet-process-shell-execute-works-on-linux/</link><pubDate>Thu, 05 Oct 2023 20:05:03 +0800</pubDate><guid>https://withlithum.github.io/p/how-dotnet-process-shell-execute-works-on-linux/</guid><description>&lt;p>When you start a process with &lt;code>UseShellExecute&lt;/code> set to &lt;code>true&lt;/code> on Windows, .NET Runtime calls the Win32 &lt;a class="link" href="https://learn.microsoft.com/windows/win32/api/shellapi/nf-shellapi-shellexecuteexw" target="_blank" rel="noopener"
+>ShellExecute&lt;/a> API to have the OS do this for the application.&lt;/p>
+&lt;p>However, on GNU/Linux, the things work different. First, the .NET Runtime will check if your target file is executable. If so, the .NET Runtime will start it as an executable.&lt;/p>
+&lt;p>If the target file is &lt;em>not&lt;/em> an executable, then .NET will attempt to find the following external commands in &lt;code>PATH&lt;/code>: &lt;code>xdg-open&lt;/code>, &lt;code>gnome-open&lt;/code> and &lt;code>kfmclient&lt;/code>. The first available external command of the above will be executed to start the program with default association.&lt;/p>
+&lt;p>What if none of these are available? The .NET Runtime will throw a &lt;code>Win32Exception&lt;/code> stating that it failed to create the process because &amp;ldquo;No such file or directory&amp;rdquo;.&lt;/p></description></item><item><title>Disabling the Blockers of Ad Blocker Blocker</title><link>https://withlithum.github.io/p/disabling-the-blockers-of-ad-blocker-blocker/</link><pubDate>Sun, 24 Sep 2023 08:21:46 +0800</pubDate><guid>https://withlithum.github.io/p/disabling-the-blockers-of-ad-blocker-blocker/</guid><description>&lt;p>This article only applies for text-and-image blogging websites.&lt;/p>
+&lt;h2 id="how-do-they-work">How do they work&lt;/h2>
+&lt;p>Anti-adblock software runs in your browser to check if an AD Blocker is running or blocks&lt;/p>
+&lt;h2 id="how-to-block-anti-adblock-popups">How to block anti-adblock popups&lt;/h2>
+&lt;p>Do not turn off your AD-blocker and tracking prevention.&lt;/p>
+&lt;p>You will usually be able to prevent annoying anti-adblock popups by just doing one thing - &lt;em>disabling JavaScript on the website where it have appeared&lt;/em>. Unless the anti-adblock software makers exploited security issues in browsers to force you watch ads, this is the most effective way.&lt;/p>
+&lt;h2 id="how-to-disable-javascript">How to disable JavaScript?&lt;/h2>
+&lt;h3 id="edge">Edge&lt;/h3>
+&lt;ol>
+&lt;li>Open the website you want to disable JavaScript. Do not turn off your ad-blocker and tracking prevention here!&lt;/li>
+&lt;li>Click the Info or Lock icon in the left side of the address bar.&lt;/li>
+&lt;li>Click &lt;strong>Permissions for this site&lt;/strong>.&lt;/li>
+&lt;li>Scroll to &lt;strong>JavaScript&lt;/strong>, and click &lt;code>Allow (Default)&lt;/code> to the right. In the popup menu, select &lt;code>Block&lt;/code>.&lt;/li>
+&lt;li>Refresh the page.&lt;/li>
+&lt;/ol></description></item><item><title>To Endfinity</title><link>https://withlithum.github.io/p/to-endfinity/</link><pubDate>Tue, 12 Sep 2023 08:32:43 +0800</pubDate><guid>https://withlithum.github.io/p/to-endfinity/</guid><description>&lt;img src="https://withlithum.github.io/p/to-endfinity/cover_compressed.png" alt="Featured image of post To Endfinity" />&lt;blockquote>
+&lt;p>&lt;strong>WARNING!!!&lt;/strong>&lt;/p>
+&lt;p>&lt;strong>THIS ARTICLE MAY CONTAIN SPOILERS FOR THE ASSASSIN OF STEVE SERIES.&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;hr>
+&lt;h2 id="download-the-maps">Download the Maps&lt;/h2>
+&lt;p>&lt;strong>YOU CAN DOWNLOAD AND PLAY THE MAPS HERE&lt;/strong>: (listed in chronological order of canon lore)&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.planetminecraft.com/project/assassin-of-steve-2826263/" target="_blank" rel="noopener"
+>Assassin of Steve&lt;/a> for 1.10.2&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.planetminecraft.com/project/adventure-map-assassin-of-steve-2-the-tribal-snouts/" target="_blank" rel="noopener"
+>Assassin of Steve 2: The Tribal Snouts&lt;/a> for 1.10.2&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.planetminecraft.com/project/assassin-of-steve-3-endergeddon-1-11-2-adventure-map/" target="_blank" rel="noopener"
+>Assassin of Steve 3: Endergeddon&lt;/a> for 1.11.2&lt;/li>
+&lt;/ul>
+&lt;p>The maps are for Java Edition and MUST BE PLAYED ON EACH RESPECTIVE DESIGNATED MINECRAFT VERSION, otherwise the maps will break.&lt;/p>
+&lt;h2 id="assassin-of-steve">Assassin of Steve&lt;/h2>
+&lt;p>&lt;img src="https://withlithum.github.io/p/to-endfinity/proof_aos1_compressed.png"
+width="1365"
+height="768"
+srcset="https://withlithum.github.io/p/to-endfinity/proof_aos1_compressed_hu592de6e4383f96542a3bd1772fc665af_892327_480x0_resize_box_3.png 480w, https://withlithum.github.io/p/to-endfinity/proof_aos1_compressed_hu592de6e4383f96542a3bd1772fc665af_892327_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Proof of completion of the map Assassin of Steve 1"
+class="gallery-image"
+data-flex-grow="177"
+data-flex-basis="426px"
+>&lt;/p>
+&lt;p>The map Assassin of Steve is the first in the Assassin of Steve series, and it was made for 1.7.10. In fact, the first scene in Mission 10 kinda resembles the vanilla 1.7 age for me.&lt;/p>
+&lt;h3 id="tips-i">Tips I&lt;/h3>
+&lt;ul>
+&lt;li>As it was made initially for 1.7 and updated to 1.10 at a later time, there are a lot of old mechanisms that have not been replaced with newer detection (such as the wheat section in the Starter Mission).&lt;/li>
+&lt;li>This map was built on a super-flat world with no decorations, and every terrain you see is actually manually built.&lt;/li>
+&lt;li>This map is probably the easiest in the series.&lt;/li>
+&lt;li>Beware of soft-lock two-block-deep holes.&lt;/li>
+&lt;/ul>
+&lt;h3 id="more-completions">More Completions&lt;/h3>
+&lt;p>&lt;img src="https://withlithum.github.io/p/to-endfinity/proof_aos1_old_compressed.png"
+width="853"
+height="480"
+srcset="https://withlithum.github.io/p/to-endfinity/proof_aos1_old_compressed_hu5c19ea53366cb4421144aef7ad6ffb8a_429579_480x0_resize_box_3.png 480w, https://withlithum.github.io/p/to-endfinity/proof_aos1_old_compressed_hu5c19ea53366cb4421144aef7ad6ffb8a_429579_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Older proof of completion"
+class="gallery-image"
+data-flex-grow="177"
+data-flex-basis="426px"
+>&lt;/p>
+&lt;p>This is the proof of an older play-through.&lt;/p>
+&lt;h2 id="assassin-of-steve-2-the-tribal-snouts">Assassin of Steve 2: The Tribal Snouts&lt;/h2>
+&lt;p>&lt;img src="https://withlithum.github.io/p/to-endfinity/proof_aos2_compressed.png"
+width="853"
+height="480"
+srcset="https://withlithum.github.io/p/to-endfinity/proof_aos2_compressed_hu79eef6a010a138e4d58a16fb1362e3ac_565034_480x0_resize_box_3.png 480w, https://withlithum.github.io/p/to-endfinity/proof_aos2_compressed_hu79eef6a010a138e4d58a16fb1362e3ac_565034_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Proof of completion of the map Assassin of Steve 2: The Tribal Snouts"
+class="gallery-image"
+data-flex-grow="177"
+data-flex-basis="426px"
+>&lt;/p>
+&lt;p>This is the second map in the series and it was made initially for 1.8, and have since been updated for 1.10. A lot of later map mechanics were introduced in this map.&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;h3 id="tips-ii">Tips II&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>Be warned that there is an armour-stand hallway in the later parts of the map, and this will cause very noticeable lag and FPS drop. The severity of the FPS drop and lag depends on your computer setup, but it generally makes the that part of the map lag to the point that it will be very hard to even kill just a single mob.&lt;/strong>&lt;/li>
+&lt;li>This map was built on a super-flat jungle world with jungle trees.&lt;/li>
+&lt;li>The two final bosses are easy to defeat after you have engaged in direct combat with them.&lt;/li>
+&lt;li>Beware of soft-lock two-block-deep holes.&lt;/li>
+&lt;/ul>
+&lt;h2 id="assassin-of-steve-3-endergeddon">Assassin of Steve 3: Endergeddon&lt;/h2>
+&lt;p>&lt;img src="https://withlithum.github.io/p/to-endfinity/proof_aos3.png"
+width="854"
+height="441"
+srcset="https://withlithum.github.io/p/to-endfinity/proof_aos3_huae91a008ac10b540c7bf54666f03805d_414618_480x0_resize_box_3.png 480w, https://withlithum.github.io/p/to-endfinity/proof_aos3_huae91a008ac10b540c7bf54666f03805d_414618_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Proof of completion of the map Assassin of Steve 3: Endergeddon"
+class="gallery-image"
+data-flex-grow="193"
+data-flex-basis="464px"
+>&lt;/p>
+&lt;h3 id="tips-iii">Tips III&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>This map is built for 1.11 and have not been updated to newer versions.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Do not use Minecraft Forge.&lt;/strong> Minecraft Forge breaks several features of this map, and potentially even more:&lt;/p>
+&lt;ul>
+&lt;li>The process to properly re-spawn you after completion Mission 14 does not work, and you will be stuck in The End.&lt;/li>
+&lt;li>You could be stuck in or be soft-locked after some cut-scenes.&lt;/li>
+&lt;li>All armours became unbreakable.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Sometimes you will encounter an issue after long-distance teleport&lt;/strong> or &lt;strong>after switching to and back from Spectator Mode&lt;/strong> that can result in:&lt;/p>
+&lt;ul>
+&lt;li>Your elytra stops working.&lt;/li>
+&lt;li>Switching armours does not change your maximum health.&lt;/li>
+&lt;li>Switching weapons does not change your attack speed.&lt;/li>
+&lt;li>Your character became transparent or invisible.&lt;/li>
+&lt;/ul>
+&lt;p>This can be fixed by dying and re-spawning, or by logging out then log back in.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>This map utilizes cut-scenes.&lt;/strong> You can encounter bugs like being stuck in spectator mode or the being soft-locked after cut-scene completion. There are guides in the &lt;code>README.txt&lt;/code> file that is included with the compressed archive that the map is in.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Beware of soft-lock two-block-deep holes.&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>The so-called SponsorLink and how to replace projects with it</title><link>https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/</link><pubDate>Sat, 12 Aug 2023 09:44:23 +0800</pubDate><guid>https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/</guid><description>&lt;img src="https://withlithum.github.io/p/the-so-called-sponsorlink-and-how-to-replace-projects-with-it/cover.png" alt="Featured image of post The so-called SponsorLink and how to replace projects with it" />&lt;p>&lt;em>This article was edited since (at 11th of November, 2023) its initial release to reflect the current changes.&lt;/em>&lt;/p>
+&lt;p>Parts of this article is based on my personal assumptions and knowledge. Yet, this does not disqualify the initial purpose of this article. I solely will decide whether a problem is material to the cause of this article or is totally immaterial to the matter.&lt;/p>
+&lt;p>&lt;strong>Disclaimer: I am not responsible for any damages, loss or costs as induced by or otherwise related to or associated with anything in the article.&lt;/strong>&lt;/p>
+&lt;h2 id="questions-and-answers">Questions and Answers&lt;/h2>
+&lt;h3 id="what-is-sponsorlink-anyways">What is SponsorLink anyways?&lt;/h3>
+&lt;p>SponsorLink is a piece of &lt;em>formerly obfuscated&lt;/em>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>MSBuild middleware that runs in the building process that connects with a remote server with the hash of your email address (the consent requirement was not there until recently) in order to verify you have sponsored the project. If you have not sponsored the project, a build delay and a build warning will be added for the first time that project was built on the same IDE instance. (It was added for each build before it was changed to the current system persumably due to critics). The makers of SponsorLink claims that they do not collect any more information than that. Currently this software does not impact end users of a software, only the build process.&lt;/p>
+&lt;p>Moq have since removed it claiming it &amp;ldquo;breaks builds on some systems&amp;rdquo; rather than other valid concerns, persumably with intention to bring it back at a later time. (Further research found out that Synk had marked Moq as having unwanted behaviour.) The version number that was released to remove SponsorLink was &lt;code>4.20.69&lt;/code>, and I personally would (because of the number &lt;code>69&lt;/code>) understand it as a some sort of despise to those who are against the SponsorLink.&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/devlooped/SponsorLink/issues/33" target="_blank" rel="noopener"
+>Issues&lt;/a> were raised about the behaviour but they are just ignored by the original author. The original author does does have a discussion thread but his response to critics were nothing more than just pickling on some very minor immaterial details in order to (by attempting to try to convince other people that the critics are wrong) provide a somewhat justifiable cause for such malicious middleware.&lt;/p>
+&lt;h3 id="why-is-it-not-acceptable">Why is it not acceptable?&lt;/h3>
+&lt;p>The designed purpose of the SponsorLink is to &lt;em>take something that users already have and expect&lt;/em> (build project without delays and unsolicited information) &lt;em>make it exclusive to those who have paid for&lt;/em>. SponsorLink is mainly used in projects that are licensed under a permissive license, and kzu persumably made this middleware based on the same intention that made Marak Squires made &lt;code>color.js&lt;/code> and &lt;code>faker.js&lt;/code> private (before community forked these). kzu may have wanted to make it similar to a product activation system but refrained from parts of the idea because of critics, and based on his response to critics in his own comment section, persumably in order to &amp;ldquo;fight back critics and prove I am totally correct&amp;rdquo;.&lt;/p>
+&lt;p>There are tons of other acceptable ways for open source sustainability, for example, the MkDocs Material sponsorware model is one of sponsorship models that I personally does not disagree with.&lt;/p>
+&lt;p>At least personally to me, begging for sponsorship in an annoying way while it is not strictly necessary means that people would simply get annoyed and stop using the project, not even to say if they are willing to pay for that or not. Everybody can define what is considered as &amp;ldquo;annoying&amp;rdquo; for themselves, yet generally a sponsorship link in the README section and in package description, as well as a one-time, non-modal &lt;em>and&lt;/em> non-interruptive notice after package install is generally considered OK.&lt;/p>
+&lt;h3 id="what-are-the-replacements-for-sponsorlink-ed-projects">What are the Replacements for SponsorLink-ed projects?&lt;/h3>
+&lt;p>You can also try to fork and wipe the project clean of SponsorLink, but beware of hidden caveats.&lt;/p>
+&lt;ul>
+&lt;li>Moq: Use &lt;code>NSubstitute&lt;/code>. See AlbertoMonteiro&amp;rsquo;s &lt;a class="link" href="https://github.com/AlbertoMonteiro/moq-to-nsubstitute" target="_blank" rel="noopener"
+>moq-to-nsubstitute&lt;/a>, and you may try Creastoff&amp;rsquo;s &lt;a class="link" href="https://github.com/Creastoff/Moqstitute" target="_blank" rel="noopener"
+>Moqstitute&lt;/a>. I have also &lt;a class="link" href="https://codeberg.org/NexusKrop/moq-build" target="_blank" rel="noopener"
+>created a fork of Moq&lt;/a> in order to strip all SponsorLink whenever and wherever it appears in the project. It should pass all tests and be 100% compatible with your current code.&lt;/li>
+&lt;li>NuGetizer: Remove the package and all packages as related to it. You do not need it to build your software.&lt;/li>
+&lt;/ul>
+&lt;h4 id="but-i-cannot-replace-these-packages">But I cannot replace these packages!&lt;/h4>
+&lt;p>Disconnnect all connections to Internet if you work on any project that is SponsorLink-ed, but I do not gurrantee this will work forever. Devlooped can simply add a feature to require Internet connection when building project.&lt;/p>
+&lt;p>You may also fork the project.&lt;/p>
+&lt;h2 id="issues-with-this-article">Issues with this Article&lt;/h2>
+&lt;p>Use the &lt;a class="link" href="https://github.com/WithLithum/withlithum.github.io/issues" target="_blank" rel="noopener"
+>Issues&lt;/a> section.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>&lt;a class="link" href="https://discord.com/channels/143867839282020352/143867839282020352/1139212669816156300" target="_blank" rel="noopener"
+>Message in C# discord&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Minecraft Maps I've Played</title><link>https://withlithum.github.io/minecraft-maps-ive-played/</link><pubDate>Fri, 04 Aug 2023 20:37:50 +0800</pubDate><guid>https://withlithum.github.io/minecraft-maps-ive-played/</guid><description/></item><item><title>Contact</title><link>https://withlithum.github.io/contact/</link><pubDate>Fri, 04 Aug 2023 20:10:45 +0800</pubDate><guid>https://withlithum.github.io/contact/</guid><description>&lt;h2 id="on-communities-and-platforms">On Communities and Platforms&lt;/h2>
+&lt;p>If you saw me on any platforms other than ones stated here then that is not me.&lt;/p>
+&lt;h3 id="active">Active&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/WithLithum" target="_blank" rel="noopener"
+>GitHub&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://codeberg.org/WithLithum" target="_blank" rel="noopener"
+>Codeberg&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://gitea.org/WithLithum" target="_blank" rel="noopener"
+>Gitea&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://namemc.com/profile/WithLithum.1" target="_blank" rel="noopener"
+>Minecraft&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://discord.gg/UFfWb9Rj" target="_blank" rel="noopener"
+>Discord&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="inactive--on-hiatus">Inactive / On Hiatus&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.gta5-mods.com/users/relapercrystal" target="_blank" rel="noopener"
+>GTA5-Mods&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://twitch.tv/withlithum" target="_blank" rel="noopener"
+>Twitch&lt;/a>&lt;/li>
+&lt;li>LCPDFR.com&lt;/li>
+&lt;li>Cfx.re Community&lt;/li>
+&lt;li>Roblox&lt;/li>
+&lt;li>Wikimedia&lt;/li>
+&lt;li>Fandom&lt;/li>
+&lt;li>X&lt;/li>
+&lt;li>Instagram&lt;/li>
+&lt;li>Mastodon&lt;/li>
+&lt;/ul>
+&lt;h2 id="e-mail">E-Mail&lt;/h2>
+&lt;p>To prevent scrawlers from catching my E-Mail address, you should go to my &lt;a class="link" href="https://codeberg.org/WithLithum" target="_blank" rel="noopener"
+>Codeberg&lt;/a> or &lt;a class="link" href="https://github.com/WithLithum" target="_blank" rel="noopener"
+>GitHub&lt;/a> profile and log into an account in order to reveal my E-Mail address.&lt;/p>
+&lt;p>Please do not spam my email nor to send anything that lacks some degree of urgency.&lt;/p>
+&lt;h2 id="licences">Licences&lt;/h2>
+&lt;p>Some parts of the open source project are used for building this blog. These includes:&lt;/p>
+&lt;h3 id="tabler-icons">Tabler icons&lt;/h3>
+&lt;p>Tabler icons are used in this blog.&lt;/p>
+&lt;p>Copyright 2018-2023 Tabler&lt;/p>
+&lt;p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:&lt;/p>
+&lt;p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.&lt;/p>
+&lt;p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.&lt;/p>
+&lt;h3 id="fontawesome-icons">FontAwesome icons&lt;/h3>
+&lt;p>FontAwesome Free icons are used in this blog. These icons can be found at &lt;a class="link" href="https://fontawesome.com/" target="_blank" rel="noopener"
+>here&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">The Font Awesome Free download is licensed under a Creative Commons
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Attribution 4.0 International License and applies to all icons packaged
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">as SVG and JS file types.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>C♯ Extension ".NET SDK Install" Workaround</title><link>https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/</link><pubDate>Fri, 04 Aug 2023 19:31:01 +0800</pubDate><guid>https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/</guid><description>&lt;img src="https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/cover.png" alt="Featured image of post C♯ Extension ".NET SDK Install" Workaround" />&lt;blockquote>
+&lt;p>&lt;strong>Note on the title&lt;/strong>&lt;/p>
+&lt;p>Hugo does not let me to include hashtag &amp;lsquo;&lt;code>#&lt;/code>&amp;rsquo; because it is a special character and Hugo did not try to
+escape it. So I used ♯ as an alternative.&lt;/p>
+&lt;/blockquote>
+&lt;p>C# extension 2.0.320 introduced a Language Server as the default option of language service instead of the good ol&amp;rsquo; OmniSharp. This however, presumably added dependency to .NET SDK Install extension. The Extension, unfortunately, at the time of when this post is written, &lt;em>doesn&amp;rsquo;t care about any of the .NET SDK installed in your computer&lt;/em>, and will try to download SDK if it was not previously downloaded by this SDK Install extension &lt;em>even if appropriate SDKs are installed in your computer, AND is in the PATH&lt;/em>.&lt;/p>
+&lt;p>This issue is being tracked via issue &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/issues/135" target="_blank" rel="noopener"
+>#135&lt;/a>, and is being worked on via PR &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/pull/1081" target="_blank" rel="noopener"
+>#1081&lt;/a>.&lt;/p>
+&lt;h2 id="workaround">Workaround&lt;/h2>
+&lt;p>In your &lt;strong>User&lt;/strong> settings, find setting &amp;ldquo;Dotnet Acquisition Extension: Existing Dotnet Path&amp;rdquo; (&lt;code>dotnetAcquisitionExtension.existingDotnetPath&lt;/code>), click &lt;code>Edit in settings.json&lt;/code>, and add lines between braces according to your Operating System and method used to install it:&lt;/p>
+&lt;h3 id="apt-ubuntu-repository">APT (Ubuntu repository)&lt;/h3>
+&lt;p>This may or may not work with Microsoft&amp;rsquo;s repository version.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;/lib/dotnet/dotnet&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="windows-via-sdk-installer1">Windows (via SDK Installer)&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;C:\\Program Files\\dotnet\\dotnet.exe&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Path to &amp;#34;dotnet&amp;#34; command executable file, not to your SDK
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="mac1">Mac&lt;sup id="fnref1:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;/usr/local/share/dotnet/dotnet&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="others">Others&lt;/h3>
+&lt;p>Replace &lt;code>&amp;lt;Path to 'dotnet' executable not directory&amp;gt;&lt;/code> with the path to your &lt;code>dotnet&lt;/code> executable (also called &amp;ldquo;command line driver&amp;rdquo;, usually &lt;code>(dotnet directory)/dotnet&lt;/code> or &lt;code>(dotnet directory)/dotnet.exe&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;&amp;lt;Path to &amp;#39;dotnet&amp;#39; executable not directory&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>Referenced &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/blob/main/Documentation/troubleshooting-runtime.md#manually-installing-net" target="_blank" rel="noopener"
+>https://github.com/dotnet/vscode-dotnet-runtime/blob/main/Documentation/troubleshooting-runtime.md#manually-installing-net&lt;/a>, only changed extension ID&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&amp;#160;&lt;a href="#fnref1:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Dotnet Hooks for GTA V: New DotNet, Brief History (assumed) and future</title><link>https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/</link><pubDate>Wed, 21 Dec 2022 12:01:01 +0800</pubDate><guid>https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/</guid><description>&lt;img src="https://withlithum.github.io/p/dotnet-hooks-for-gta-v-new-dotnet-brief-history-assumed-and-future/cover.png" alt="Featured image of post Dotnet Hooks for GTA V: New DotNet, Brief History (assumed) and future" />&lt;blockquote>
+&lt;p>NOTE&lt;/p>
+&lt;p>This article is not affliated with Script Hook V .NET project, nor the RAGE Plugin Hook project.
+Pronouns avoided to avoid controversy. All credits for quotes, projects and resources mentioned below goes to their respective authors and contributors.&lt;/p>
+&lt;/blockquote>
+&lt;p>Many of you may already heard of the &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet" target="_blank" rel="noopener"
+>Community Script Hook V .NET&lt;/a> project. This is basically a continuation of the original &lt;a class="link" href="https://github.com/HazardX/gta4_scripthookdotnet" target="_blank" rel="noopener"
+>Script Hook IV .NET&lt;/a> project (note that the IV is to differ from V). Then, there is the &lt;a class="link" href="https://discord.gg/ragepluginhook" target="_blank" rel="noopener"
+>RAGE Plugin Hook&lt;/a>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>, mainly for LSPDFR project.&lt;/p>
+&lt;p>However, some of really tech savvy users could have spotted an issue - &lt;strong>None of these supports new .NET 5+&lt;/strong>! Yes, GTA V projects above absolutely are aware of issue and these have not aware have already outdated and abondoned.&lt;/p>
+&lt;p>Below is a brief history related to .NET family and particular problems.&lt;/p>
+&lt;h2 id="the-net-framework">The .NET Framework&lt;/h2>
+&lt;p>Back then, when these projects started, .NET Framework is the choice. And at that time, .NET Core either have not came out or is too unmature to be used, and everyone have or had .NET Framework runtime on their computer, or they can easily install it. Most hooks take advantage of &lt;code>C++/CLI&lt;/code> language feature to integrate C++ hooks with .NET Framework or hook the game completely on its own.&lt;/p>
+&lt;p>But there is one catch! &lt;code>C++/CLI&lt;/code> was designed to merely &lt;strong>Call C/C++ functions from C# easier&lt;/strong>, and did not support &lt;strong>hosting C# code from C/C++&lt;/strong> which script hooks require. So, these projects have to use all sorts of hacky ways to get it up and running.&lt;/p>
+&lt;blockquote>
+&lt;p>Originally SHVDN did not handle this at all, it just called managed functions from the unmanaged SHV callback directly. This was fine as long as the stack space did not change between callbacks, which was the case most of the time. Unfortunately some actions like loading a save game cause SHV to reload SHVDN and it does so with a different fiber and therefore different stack space then before. The next call into managed code therefore generally crashed pretty quickly. My &amp;ldquo;solution&amp;rdquo; back then (bf12d5c, like 6 years ago, don&amp;rsquo;t remember the details anymore to be honest) was to ensure SHVDN always calls into managed code from the same fiber. This way on the first managed call the CLR sets itself up in the fiber&amp;rsquo;s stack space and consequent calls are always guaranteed to hit that same space. I did not dig into it much further back then since it seemed to get rid of the problem at hand. The core of SHVDN hasn&amp;rsquo;t really changed all that much since and nobody looked at it again, so the &amp;ldquo;fix&amp;rdquo; stuck.&lt;/p>
+&lt;p>&amp;ndash; crosire in &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet/issues/976" target="_blank" rel="noopener"
+>crosire/scripthookvdotnet#976&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="the-new-net">The new .NET&lt;/h2>
+&lt;p>However, the situtation more or less have changed as the .NET 5 became &lt;strong>The .NET&lt;/strong>, it supports Windows desktop (and not to mention GNU/Linux and Mac), &lt;a class="link" href="https://softwarehut.com/blog/tech/net-core-vs-net-framework-testing-performance" target="_blank" rel="noopener"
+>runs&lt;/a> &lt;a class="link" href="https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-5/" target="_blank" rel="noopener"
+>faster&lt;/a>, have new and faster APIs, supports new C# language versions and features and even more!&lt;/p>
+&lt;p>Anyway, after .NET 6 LTS release, I &lt;a class="link" href="https://www.lcpdfr.com/forums/topic/119555-why-script-hooks-and-mod-frameworks-for-gta-still-uses-net-framework/" target="_blank" rel="noopener"
+>asked on the LSPDFR Forum&lt;/a> on January about this particular issue, where one of the developers who works with LSPDFR and RPH team responded:&lt;/p>
+&lt;blockquote>
+&lt;p>There is no support for AppDomains in .NET as compared to framework, so isolating plugins is a very different beast. I suppose the way forward would be using IPC as isolation, but I don&amp;rsquo;t think anyone has looked into that yet for a GTA framework.&lt;/p>
+&lt;p>&amp;ndash; LMS, in &lt;a class="link" href="https://www.lcpdfr.com/forums/topic/119555-why-script-hooks-and-mod-frameworks-for-gta-still-uses-net-framework/?do=findComment&amp;amp;comment=706905" target="_blank" rel="noopener"
+>this reply&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>In this reply, LMS pointed out that a big part of reason why RPH does not update to .NET 5+ is that isolation and security boundaries for &lt;code>AppDomain&lt;/code> have been axed:&lt;/p>
+&lt;blockquote>
+&lt;p>On .NET Core, the AppDomain implementation is limited by design and does not provide isolation, unloading, or security boundaries. For .NET Core, there is exactly one AppDomain. Isolation and unloading are provided through AssemblyLoadContext. Security boundaries should be provided by process boundaries and appropriate remoting techniques.&lt;/p>
+&lt;p>&lt;a class="link" href="https://learn.microsoft.com/en-us/dotnet/api/system.appdomain?view=net-7.0#remarks" target="_blank" rel="noopener"
+>AppDomain on Microsoft Learn documentation&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>However, there are ways to isolate on .NET, as pointed out by LMS and in the docs, is to use interprocess communication and use process boundaries to isolate plugins and scripts.&lt;/p>
+&lt;h2 id="conclusion-and-forward">Conclusion, and Forward&lt;/h2>
+&lt;p>There are attempted &lt;a class="link" href="https://github.com/crosire/scripthookvdotnet/pull/1118" target="_blank" rel="noopener"
+>SHVDN porting efforts&lt;/a>. If you want to work on it you can.GTA V Modding frameworks, at this stage, should stay on .NET Framework for more couple of years as when either .NET Framework axed or support dropped by Microsoft or GTA VI have came out (which still 2-3 years away at least). However I doubt new technology would be used if .NET Framework is still supported when GTA VI came out.&lt;/p>
+&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>This link goes to the RPH Discord. RAGE Plugin Hook original author is &amp;ldquo;away without official leave&amp;rdquo; for as least a year now and the latest available RPH on that website is still for game build 2372! you can try it &lt;a class="link" href="https://ragepluginhook.net" target="_blank" rel="noopener"
+>here&lt;/a>&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item><item><title>Welcome</title><link>https://withlithum.github.io/p/welcome/</link><pubDate>Wed, 21 Dec 2022 11:32:05 +0800</pubDate><guid>https://withlithum.github.io/p/welcome/</guid><description>&lt;img src="https://withlithum.github.io/p/welcome/cover.png" alt="Featured image of post Welcome" />&lt;p>Welcome to this new Hugo blog where I post techinical stuffs. Feel free to keep you updated by subscribing to RSS!&lt;/p>
+&lt;h2 id="what-i-can-read-from-here">What I can read from here?&lt;/h2>
+&lt;p>Well, mostly techinical. Most likely, C# and .NET, Windows API, some stuff.&lt;/p></description></item><item><title>Archives</title><link>https://withlithum.github.io/archives/</link><pubDate>Sun, 06 Mar 2022 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/archives/</guid><description/></item><item><title>Links</title><link>https://withlithum.github.io/links/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/links/</guid><description>&lt;blockquote>
+&lt;p>&lt;strong>DISCLAIMER&lt;/strong>&lt;/p>
+&lt;p>As usual, external websites linked on this page AND on all other pages on this site (mostly) is not made by me, and I do not take responsibility for contents on external websites.&lt;/p>
+&lt;/blockquote>
+&lt;p>This very section contains links to various sites.&lt;/p></description></item><item><title>Projects</title><link>https://withlithum.github.io/projects/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/projects/</guid><description>&lt;p>This very section contains links to projects I mainly works on.&lt;/p></description></item><item><title>Search</title><link>https://withlithum.github.io/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/search/</guid><description/></item><item><title>Signature</title><link>https://withlithum.github.io/signature/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/signature/</guid><description>&lt;blockquote>
+&lt;p>&lt;strong>Please refrain from using the following signature. It is no longer in use.&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">-----BEGIN PGP SIGNED MESSAGE-----
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Hash: SHA512
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">This is some signature proof.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">proof=https://gist.github.com/WithLithum/476f1a07f1fcd22f93556c0ea1d076f9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">proof=https://codeberg.org/WithLithum/gitea_proof
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-----BEGIN PGP SIGNATURE-----
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">iI0EARYKADUWIQQ9vkfXRON04k9n9KqFxRCkgP2P1AUCZN1uqxccd2l0aGxpdGh1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bUBvdXRsb29rLmNvbQAKCRCFxRCkgP2P1FOGAP93YGgcZ5TFfSbFzq2LnE5jj1pP
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">OgKy79Iprc7GSy1LkAEA2vGSsUcqVbHrW0HCj2qM/ekvXJQOTYiG7dwXC/7aqQ8=
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">=4Isy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-----END PGP SIGNATURE-----
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

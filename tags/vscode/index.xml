@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>vscode on WithLithum</title><link>https://withlithum.github.io/tags/vscode/</link><description>Recent content in vscode on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 04 Aug 2023 19:31:01 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>C♯ Extension ".NET SDK Install" Workaround</title><link>https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/</link><pubDate>Fri, 04 Aug 2023 19:31:01 +0800</pubDate><guid>https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/</guid><description>&lt;img src="https://withlithum.github.io/p/c-extension-.net-sdk-install-workaround/cover.png" alt="Featured image of post C♯ Extension ".NET SDK Install" Workaround" />&lt;blockquote>
+&lt;p>&lt;strong>Note on the title&lt;/strong>&lt;/p>
+&lt;p>Hugo does not let me to include hashtag &amp;lsquo;&lt;code>#&lt;/code>&amp;rsquo; because it is a special character and Hugo did not try to
+escape it. So I used ♯ as an alternative.&lt;/p>
+&lt;/blockquote>
+&lt;p>C# extension 2.0.320 introduced a Language Server as the default option of language service instead of the good ol&amp;rsquo; OmniSharp. This however, presumably added dependency to .NET SDK Install extension. The Extension, unfortunately, at the time of when this post is written, &lt;em>doesn&amp;rsquo;t care about any of the .NET SDK installed in your computer&lt;/em>, and will try to download SDK if it was not previously downloaded by this SDK Install extension &lt;em>even if appropriate SDKs are installed in your computer, AND is in the PATH&lt;/em>.&lt;/p>
+&lt;p>This issue is being tracked via issue &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/issues/135" target="_blank" rel="noopener"
+>#135&lt;/a>, and is being worked on via PR &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/pull/1081" target="_blank" rel="noopener"
+>#1081&lt;/a>.&lt;/p>
+&lt;h2 id="workaround">Workaround&lt;/h2>
+&lt;p>In your &lt;strong>User&lt;/strong> settings, find setting &amp;ldquo;Dotnet Acquisition Extension: Existing Dotnet Path&amp;rdquo; (&lt;code>dotnetAcquisitionExtension.existingDotnetPath&lt;/code>), click &lt;code>Edit in settings.json&lt;/code>, and add lines between braces according to your Operating System and method used to install it:&lt;/p>
+&lt;h3 id="apt-ubuntu-repository">APT (Ubuntu repository)&lt;/h3>
+&lt;p>This may or may not work with Microsoft&amp;rsquo;s repository version.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;/lib/dotnet/dotnet&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="windows-via-sdk-installer1">Windows (via SDK Installer)&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;C:\\Program Files\\dotnet\\dotnet.exe&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Path to &amp;#34;dotnet&amp;#34; command executable file, not to your SDK
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="mac1">Mac&lt;sup id="fnref1:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;/usr/local/share/dotnet/dotnet&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="others">Others&lt;/h3>
+&lt;p>Replace &lt;code>&amp;lt;Path to 'dotnet' executable not directory&amp;gt;&lt;/code> with the path to your &lt;code>dotnet&lt;/code> executable (also called &amp;ldquo;command line driver&amp;rdquo;, usually &lt;code>(dotnet directory)/dotnet&lt;/code> or &lt;code>(dotnet directory)/dotnet.exe&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;extensionId&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;ms-dotnettools.csharp&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;&amp;lt;Path to &amp;#39;dotnet&amp;#39; executable not directory&amp;gt;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1">
+&lt;p>Referenced &lt;a class="link" href="https://github.com/dotnet/vscode-dotnet-runtime/blob/main/Documentation/troubleshooting-runtime.md#manually-installing-net" target="_blank" rel="noopener"
+>https://github.com/dotnet/vscode-dotnet-runtime/blob/main/Documentation/troubleshooting-runtime.md#manually-installing-net&lt;/a>, only changed extension ID&amp;#160;&lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&amp;#160;&lt;a href="#fnref1:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pages on WithLithum</title><link>https://withlithum.github.io/page/</link><description>Recent content in Pages on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Fri, 04 Aug 2023 20:37:50 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/page/index.xml" rel="self" type="application/rss+xml"/><item><title>Minecraft Maps I've Played</title><link>https://withlithum.github.io/minecraft-maps-ive-played/</link><pubDate>Fri, 04 Aug 2023 20:37:50 +0800</pubDate><guid>https://withlithum.github.io/minecraft-maps-ive-played/</guid><description/></item><item><title>Contact</title><link>https://withlithum.github.io/contact/</link><pubDate>Fri, 04 Aug 2023 20:10:45 +0800</pubDate><guid>https://withlithum.github.io/contact/</guid><description>&lt;h2 id="on-communities-and-platforms">On Communities and Platforms&lt;/h2>
+&lt;p>If you saw me on any platforms other than ones stated here then that is not me.&lt;/p>
+&lt;h3 id="active">Active&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/WithLithum" target="_blank" rel="noopener"
+>GitHub&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://codeberg.org/WithLithum" target="_blank" rel="noopener"
+>Codeberg&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://gitea.org/WithLithum" target="_blank" rel="noopener"
+>Gitea&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://namemc.com/profile/WithLithum.1" target="_blank" rel="noopener"
+>Minecraft&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://discord.gg/UFfWb9Rj" target="_blank" rel="noopener"
+>Discord&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="inactive--on-hiatus">Inactive / On Hiatus&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.gta5-mods.com/users/relapercrystal" target="_blank" rel="noopener"
+>GTA5-Mods&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://twitch.tv/withlithum" target="_blank" rel="noopener"
+>Twitch&lt;/a>&lt;/li>
+&lt;li>LCPDFR.com&lt;/li>
+&lt;li>Cfx.re Community&lt;/li>
+&lt;li>Roblox&lt;/li>
+&lt;li>Wikimedia&lt;/li>
+&lt;li>Fandom&lt;/li>
+&lt;li>X&lt;/li>
+&lt;li>Instagram&lt;/li>
+&lt;li>Mastodon&lt;/li>
+&lt;/ul>
+&lt;h2 id="e-mail">E-Mail&lt;/h2>
+&lt;p>To prevent scrawlers from catching my E-Mail address, you should go to my &lt;a class="link" href="https://codeberg.org/WithLithum" target="_blank" rel="noopener"
+>Codeberg&lt;/a> or &lt;a class="link" href="https://github.com/WithLithum" target="_blank" rel="noopener"
+>GitHub&lt;/a> profile and log into an account in order to reveal my E-Mail address.&lt;/p>
+&lt;p>Please do not spam my email nor to send anything that lacks some degree of urgency.&lt;/p>
+&lt;h2 id="licences">Licences&lt;/h2>
+&lt;p>Some parts of the open source project are used for building this blog. These includes:&lt;/p>
+&lt;h3 id="tabler-icons">Tabler icons&lt;/h3>
+&lt;p>Tabler icons are used in this blog.&lt;/p>
+&lt;p>Copyright 2018-2023 Tabler&lt;/p>
+&lt;p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:&lt;/p>
+&lt;p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.&lt;/p>
+&lt;p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.&lt;/p>
+&lt;h3 id="fontawesome-icons">FontAwesome icons&lt;/h3>
+&lt;p>FontAwesome Free icons are used in this blog. These icons can be found at &lt;a class="link" href="https://fontawesome.com/" target="_blank" rel="noopener"
+>here&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">The Font Awesome Free download is licensed under a Creative Commons
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Attribution 4.0 International License and applies to all icons packaged
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">as SVG and JS file types.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Archives</title><link>https://withlithum.github.io/archives/</link><pubDate>Sun, 06 Mar 2022 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/archives/</guid><description/></item><item><title>Links</title><link>https://withlithum.github.io/links/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/links/</guid><description>&lt;blockquote>
+&lt;p>&lt;strong>DISCLAIMER&lt;/strong>&lt;/p>
+&lt;p>As usual, external websites linked on this page AND on all other pages on this site (mostly) is not made by me, and I do not take responsibility for contents on external websites.&lt;/p>
+&lt;/blockquote>
+&lt;p>This very section contains links to various sites.&lt;/p></description></item><item><title>Projects</title><link>https://withlithum.github.io/projects/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/projects/</guid><description>&lt;p>This very section contains links to projects I mainly works on.&lt;/p></description></item><item><title>Search</title><link>https://withlithum.github.io/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/search/</guid><description/></item><item><title>Signature</title><link>https://withlithum.github.io/signature/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://withlithum.github.io/signature/</guid><description>&lt;blockquote>
+&lt;p>&lt;strong>Please refrain from using the following signature. It is no longer in use.&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">-----BEGIN PGP SIGNED MESSAGE-----
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Hash: SHA512
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">This is some signature proof.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">proof=https://gist.github.com/WithLithum/476f1a07f1fcd22f93556c0ea1d076f9
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">proof=https://codeberg.org/WithLithum/gitea_proof
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-----BEGIN PGP SIGNATURE-----
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">iI0EARYKADUWIQQ9vkfXRON04k9n9KqFxRCkgP2P1AUCZN1uqxccd2l0aGxpdGh1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bUBvdXRsb29rLmNvbQAKCRCFxRCkgP2P1FOGAP93YGgcZ5TFfSbFzq2LnE5jj1pP
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">OgKy79Iprc7GSy1LkAEA2vGSsUcqVbHrW0HCj2qM/ekvXJQOTYiG7dwXC/7aqQ8=
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">=4Isy
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-----END PGP SIGNATURE-----
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

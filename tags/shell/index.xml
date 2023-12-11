@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>shell on WithLithum</title><link>https://withlithum.github.io/tags/shell/</link><description>Recent content in shell on WithLithum</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 18 Nov 2023 08:55:23 +0800</lastBuildDate><atom:link href="https://withlithum.github.io/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>IceShell Anniversary Preview - Status Update 1</title><link>https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/</link><pubDate>Sat, 18 Nov 2023 08:55:23 +0800</pubDate><guid>https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/</guid><description>&lt;img src="https://withlithum.github.io/p/iceshell-anniversary-preview-status-update-1/cover.png" alt="Featured image of post IceShell Anniversary Preview - Status Update 1" />&lt;p>This is the first status update for the IceShell Anniversary Preview (v0.3.0-alpha), which is set to release at 1st of Feburary 2024, exactly one year after its first commit. While I&amp;rsquo;ve been working on it for the last year, there weren&amp;rsquo;t some major improvements until the Anniversary Preview were planned.&lt;/p>
+&lt;p>The Anniversary Preview comes with the overhual of one of the systems that IceShell relies on - internal command registry.&lt;/p>
+&lt;h2 id="internal-command-registry">Internal Command Registry&lt;/h2>
+&lt;p>Let&amp;rsquo;s outline the main changes made to the Internal Command Registry system:&lt;/p>
+&lt;h3 id="rewrite-of-registry-system">Rewrite of registry system&lt;/h3>
+&lt;ul>
+&lt;li>The attribute-based command system have been decoupled from the command registry system. Instead, you need to maintain an instance of &lt;code>AnnotatedCommandRegistry&lt;/code>. This change does not bring breaking API changes to the attributes surface, though!&lt;/li>
+&lt;li>You can now register commands with a &lt;code>CommandRegistryEntry&lt;/code> which describes the command, and a &lt;code>CommandDelegate&lt;/code> which handles the execution of the command.&lt;/li>
+&lt;li>The command manager (&lt;code>ICommandManager&lt;/code>) and dispatcher (&lt;code>ICommandDispatcher&lt;/code>) interface have been merged to a single interface, the &lt;code>IRegistryCommandDispatcher&lt;/code> interface!&lt;/li>
+&lt;/ul>
+&lt;p>Here is an example of how to register an annotated command under the new system:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">registry&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">AnnotatedCommandRegistry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">registry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">typeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AnnotatedCommand&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Whereas the shell is the dispatcher that is passed via shell or module initialisation.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// and AnnotatedCommand is the command you are going to register.&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Here is a demonstration of how to register a command without an annotated shell command class:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">entry&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">CommandRegistryEntry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;command&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">var&lt;/span> &lt;span class="n">val&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="n">entry&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AddValue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;value&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">shell&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">executor&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">context&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">context&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Arguments&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Values&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">val&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Execute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;command testvalue&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">// testvalue&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="separation-of-command-aliases-and-ids">Separation of command aliases and IDs&lt;/h3>
+&lt;p>Once a time ago, there are no command aliases, and commands are directly referred to with their ID (called &lt;em>Name&lt;/em> at that time). Because of there are requirements for supporting commands with multiple names, an alias feature was added. The alias feature were implemented by registering the same command twice or more times under different names.&lt;/p>
+&lt;p>In the Anniversary Preview, the command IDs and aliases are now registered separately:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The same command registered with two or more IDs are treated with separate commands (or separate instances of the same command, if you thinks so).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Multiple aliases will correspond to unique IDs of commands, and the command dispatcher will use the ID to acquire the command definition from the registry.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Command IDs are case sensitive, while command aliases are case insensitive.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s suppose there is a command registered with ID &lt;code>test&lt;/code>. By default, the ID of the command is automatically registered as an alias of the command. Here is an example demonstrating the differences between aliases and IDs:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-csharp" data-lang="csharp">&lt;span class="line">&lt;span class="cl">&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Register&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">routine&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Entry is a command with ID &amp;#34;test&amp;#34;.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Command IDs are case sensitive.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TEST&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">AnyCommand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tEsT&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// False&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// Command aliases are case insensitive.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TEST&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">WriteLine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dispatcher&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">HasAlias&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;TeSt&amp;#34;&lt;/span>&lt;span class="p">));&lt;/span> &lt;span class="c1">// True&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="platform-modules">Platform Modules&lt;/h2>
+&lt;p>The Anniversary Preview update introduces two Platform Modules, the GNU/Linux platform module and Windows platform module.&lt;/p>
+&lt;p>The two modules are bundled in a standard release package and is automatically enabled on their respective platforms.&lt;/p>
+&lt;h2 id="command-changes">Command Changes&lt;/h2>
+&lt;h3 id="bundled-commands">Bundled Commands&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Added the new &lt;code>CHMOD&lt;/code> command in the GNU/Linux platform module&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>DATE&lt;/code> command for viewing date and time&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>FIND&lt;/code> command for searching for text strings in pipeline input&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Modified the syntax of the &lt;code>PROMPT&lt;/code> command and the prompt itself to support more placeholders&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>MEM&lt;/code> and &lt;code>VOL&lt;/code>commands in the Windows platform module&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Added the new &lt;code>MORE&lt;/code> command to separate large chunk of text to pages with size determined by the size of the text buffer area of your terminal (emulator) window or screen.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="command-help">Command Help&lt;/h3>
+&lt;p>The description of commands and its parameters are no longer hardcoded. Instead, the description will be shown as a localised message with automatically generated message ID.&lt;/p>
+&lt;p>The message ID format is shown as below:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Type&lt;/th>
+&lt;th>Message ID Format&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Command description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Value parameter description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.value_&amp;lt;reference-name&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Option parameter description&lt;/td>
+&lt;td>&lt;code>command.&amp;lt;command-name&amp;gt;.option_&amp;lt;identifier&amp;gt;.description&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="command-actions">Command Actions&lt;/h3>
+&lt;p>The support for a single ampersand to connect two commands have been added. A single ampersand means to execute the command to the right regardless of the result of the command to the left.&lt;/p>
+&lt;h3 id="argument-parsing">Argument Parsing&lt;/h3>
+&lt;p>The support for multiple integral types have been added to annotated commands. Currently this includes &lt;code>Int32&lt;/code>, &lt;code>Int64&lt;/code>, &lt;code>Byte&lt;/code>, &lt;code>SByte&lt;/code>, &lt;code>Byte&lt;/code> and also &lt;code>Enum&lt;/code>.&lt;/p>
+&lt;p>I plan to add this argument conversion service to non-annotated commands.&lt;/p>
+&lt;h2 id="in-the-end">In the end&amp;hellip;&lt;/h2>
+&lt;p>I would like to thank &lt;a class="link" href="https://jetbrains.com/" target="_blank" rel="noopener"
+>JetBrains&lt;/a> for providing a free licence for their tools to help develop IceShell. Their tools have really helped me to make the later than much more major and important changes to the core systems. Without their tools, I would have costed much more time to may these important changes.&lt;/p>
+&lt;p>That&amp;rsquo;s all for now! I will continue to add new features and updates to the Anniversary Preview and improve it further in the meanwhile.&lt;/p></description></item></channel></rss>
