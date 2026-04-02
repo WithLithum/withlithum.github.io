@@ -1,5 +1,5 @@
-module github.com/CaiJimmy/hugo-theme-stack-starter
+module github.com/WithLithum/withlithum.github.io
 
-go 1.17
+go 1.26
 
-require github.com/CaiJimmy/hugo-theme-stack/v3 v3.16.0 // indirect
+require github.com/CaiJimmy/hugo-theme-stack/v3 v3.34.2 // indirect
