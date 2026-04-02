@@ -22,11 +22,3 @@ url = "https://github.com/WithLithum/"
 
 [social.params]
 icon = "brand-github"
-
-[[social]]
-identifier = "gitlab"
-name = "GitLab SaaS"
-url = "https://gitlab.com/WithLithum/"
-
-[social.params]
-icon = "brand-gitlab"

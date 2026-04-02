@@ -11,11 +11,9 @@ tags:
     - vscode
 ---
 
-> **Note on the title**
+> **Note from April 2026**
 >
-> Hugo does not let me to include hashtag '`#`' because it is a special character and Hugo did not try to
-> escape it. So I used ♯ as an alternative.
->
+> The .NET Install extension now presumably searches for an already installed .NET SDK. The below still works, provided you need them.
 
 C# extension 2.0.320 introduced a Language Server as the default option of language service instead of the good ol' OmniSharp. This however, presumably added dependency to .NET SDK Install extension. The Extension, unfortunately, at the time of when this post is written, _doesn't care about any of the .NET SDK installed in your computer_, and will try to download SDK if it was not previously downloaded by this SDK Install extension _even if appropriate SDKs are installed in your computer, AND is in the PATH_.
 
