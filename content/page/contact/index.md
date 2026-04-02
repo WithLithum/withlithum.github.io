@@ -11,7 +11,7 @@ menu:
 
 ## On Communities and Platforms
 
-If you saw me on any platforms other than ones stated here then that is not me.
+If you saw me on any platforms other than ones stated here then there is a possibility that is not me.
 
 ### Active
 
@@ -19,7 +19,8 @@ If you saw me on any platforms other than ones stated here then that is not me.
 - [Codeberg](https://codeberg.org/WithLithum)
 - [Gitea](https://gitea.org/WithLithum)
 - [Minecraft](https://namemc.com/profile/WithLithum.1)
-- [Discord](https://discord.gg/UFfWb9Rj)
+- Discord: `withlithum`
+- [Fandom](https://community.fandom.com/wiki/User:WithLithum)
 
 ### Inactive / On Hiatus
 
@@ -29,7 +30,6 @@ If you saw me on any platforms other than ones stated here then that is not me.
 - Cfx.re Community
 - Roblox
 - Wikimedia
-- Fandom
 - X
 - Instagram
 - Mastodon
@@ -38,7 +38,7 @@ If you saw me on any platforms other than ones stated here then that is not me.
 
 To prevent scrawlers from catching my E-Mail address, you should go to my [Codeberg](https://codeberg.org/WithLithum) or [GitHub](https://github.com/WithLithum) profile and log into an account in order to reveal my E-Mail address.
 
-Please do not spam my email nor to send anything that lacks some degree of urgency.
+Please do not spam my email, nor send anything that lacks some degree of urgency.
 
 ## Licences
 

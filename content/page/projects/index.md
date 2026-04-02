@@ -1,14 +1,13 @@
 ---
 title: Projects
 links:
-  - title: IceShell
-    description: An experimental shell interpreter inspired by MS-DOS and Windows Command Prompt.
-    website: https://codeberg.org/WithLithum/IceShell
-    image: https://codeberg.org/WithLithum/IceShell/raw/branch/trunk/assets/logo.png
-  - title: IceCube
-    description: A utilities library to reduce boilerplate code and help improve code readability.
-    website: https://gitea.com/WithLithum/IceCube
-    image: https://gitea.com/repo-avatars/68636bc5761379a0363b517dfa45801461bd1e70aa0f11b69fb5b98c2143d7c6
+  - title: MineJason
+    description: .NET library for dealing with various formats used in Minecraft Java Edition
+    website: https://github.com/WithLithum/MineJason
+  - title: Archives
+    description: The things I had wanted to do but couldn't finish. Sorry.
+    website: https://github.com/WithLithum-archive
+    image: https://github.com/WithLithum-archive.png
 
 menu:
     main: 
