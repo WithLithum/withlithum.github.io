@@ -2,4 +2,4 @@ module github.com/WithLithum/withlithum.github.io
 
 go 1.26
 
-require github.com/CaiJimmy/hugo-theme-stack/v4 v4.0.2 // indirect
+require github.com/CaiJimmy/hugo-theme-stack/v4 v4.0.3 // indirect
